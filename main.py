@@ -6,6 +6,7 @@ import ui
 
 store = BookStore()
 
+
 def main():
 
     menu = create_menu()
