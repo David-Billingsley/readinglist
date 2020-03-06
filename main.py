@@ -1,75 +1,34 @@
-""" Program to create and manage a list of books that the user wishes to read, and books that the user has read. """
+class Menu:
 
-from bookstore import Book, BookStore
-from menu import Menu
-import ui
+    """ Represents a set of menu options. Each option has a key or string the user
+    should press to select it, a text description, and the function to be invoked for that choice.
+    The keys the user presses are unique within a menu. """
 
-store = BookStore()
+    def __init__(self):
+        self.text_descriptions = {}
+        self.functions = {}
 
+    def add_option(self, key, description, func):
+        """ Add or replaces an option to this menu.
+        If another option with the same key is already present, it will be overwritten.
+        :param key: the key the user should press to select this option. Can be a single character or a string
+        :param description: a text description of the menu option
+        :param func: the function that should be invoked when the user selects this option """
+        self.text_descriptions[key] = description
+        self.functions[key] = func
 
-def main():
+    def is_valid(self, choice):
+        """ Verifies if a choice is one of the menu options
+        :param choice: the choice to check
+        :returns: True if the choice is a key in the menu options, False otherwise  """
+        return choice in self.text_descriptions
 
-    menu = create_menu()
+    def get_action(self, choice):
+        """ :returns: the function to invoke for the menu choice, or None if not found """
+        return self.functions.get(choice)
 
-    while True:
-        choice = ui.display_menu_get_choice(menu)
-        action = menu.get_action(choice)
-        action()
-        if choice == 'Q':
-            break
+    def __str__(self):
+        """ :returns: all the menu options and their descriptions, one per line. """
+        texts = [f'{key}: {self.text_descriptions[key]}' for key in self.text_descriptions.keys()]
+        return '\n'.join(texts)
 
-
-def create_menu():
-    menu = Menu()
-    menu.add_option('1', 'Add Book', add_book)
-    menu.add_option('2', 'Search For Book', search_book)
-    menu.add_option('3', 'Show Unread Books', show_unread_books)
-    menu.add_option('4', 'Show Read Books', show_read_books)
-    menu.add_option('5', 'Show All Books', show_all_books)
-    menu.add_option('6', 'Change Book Read Status', change_read)
-    menu.add_option('Q', 'Quit', quit_program)
-
-    return menu
-
-
-def add_book():
-    new_book = ui.get_book_info()
-    new_book.save()
-    
-
-def show_read_books():
-    read_books = store.get_books_by_read_value(True)
-    ui.show_books(read_books)
-
-
-def show_unread_books():
-    unread_books = store.get_books_by_read_value(False)
-    ui.show_books(unread_books)
-
-
-def show_all_books():
-    books = store.get_all_books()
-    ui.show_books(books)
-
-
-def search_book():
-    search_term = ui.ask_question('Enter search term, will match partial authors or titles.')
-    matches = store.book_search(search_term)
-    ui.show_books(matches)
-
-
-def change_read():
-
-    book_id = ui.get_book_id()
-    book = store.get_book_by_id(book_id)  
-    new_read = ui.get_read_value()     
-    book.read = new_read 
-    book.save()
-    
-
-def quit_program():
-    ui.message('Thanks and bye!')
-
-
-if __name__ == '__main__':
-    main()
